@@ -1,0 +1,115 @@
+package com.li.education.main.study;
+
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.li.education.R;
+import com.li.education.base.AppData;
+import com.li.education.base.BaseActivity;
+import com.li.education.base.bean.ChapterResult;
+import com.li.education.base.bean.StudyResult;
+import com.li.education.base.http.HttpService;
+import com.li.education.base.http.RetrofitUtil;
+import com.li.education.main.home.CustomItemDecoration;
+import com.li.education.main.study.adapter.ChapterAdapter;
+
+import rx.Subscriber;
+
+import static rx.android.schedulers.AndroidSchedulers.mainThread;
+import static rx.schedulers.Schedulers.io;
+
+/**
+ * Created by liu on 2017/6/19.
+ */
+
+public class PlayListActivity extends BaseActivity implements View.OnClickListener{
+    private ImageView mIvBack;
+    private TextView mTvTime;
+    private RecyclerView mRecyclerView;
+    private ChapterAdapter mAdapter;
+
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_play_list);
+        initView();
+        Bundle bundle = getIntent().getExtras();
+        String code1 = bundle.getString("code1");
+        if(TextUtils.isEmpty(code1)){
+            showToast("数据有误，请联系客服");
+        }else{
+            getData(code1);
+        }
+    }
+
+    private void initView() {
+        mIvBack = (ImageView) findViewById(R.id.iv_back);
+        mTvTime = (TextView) findViewById(R.id.tv_time);
+        mRecyclerView = (RecyclerView) findViewById(R.id.recycle_view);
+        mIvBack.setOnClickListener(this);
+        LinearLayoutManager manager = new LinearLayoutManager(this);
+        mRecyclerView.addItemDecoration(new CustomItemDecoration(1, 0xffd9e0f2));
+        mRecyclerView.setLayoutManager(manager);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.iv_back:
+                onBackPressed();
+                break;
+        }
+    }
+
+    private void getData(String code1){
+        RetrofitUtil.getInstance().create(HttpService.class).getCode2Title2List(AppData.token, code1).subscribeOn(io()).observeOn(mainThread()).subscribe(new Subscriber<ChapterResult>() {
+
+            @Override
+            public void onStart() {
+                super.onStart();
+                showProgressDialog();
+            }
+
+            @Override
+            public void onCompleted() {
+                removeProgressDialog();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                e.printStackTrace();
+                removeProgressDialog();
+            }
+
+            @Override
+            public void onNext(ChapterResult result) {
+                if(result.isStatus()){
+                    if(result != null && result.getData() != null) {
+                        if (mAdapter == null) {
+                            mAdapter = new ChapterAdapter(PlayListActivity.this);
+                            mAdapter.setData(result.getData().getSysEduTypeList());
+                            mAdapter.setListVO(result.getData());
+                            mRecyclerView.setAdapter(mAdapter);
+                        }else{
+                            mAdapter.setData(result.getData().getSysEduTypeList());
+                            mAdapter.setListVO(result.getData());
+                            mAdapter.notifyDataSetChanged();
+                        }
+                        int time = 0;
+                        if(result.getData().getLongtime() != 0){
+                            time = (int) (result.getData().getLongtime() / 60);
+                        }
+                        mTvTime.setText("本次总学时为" + result.getData().getSumEduTime() + "，已完成学时" + time + "分钟");
+                    }
+                }
+            }
+        });
+    }
+}

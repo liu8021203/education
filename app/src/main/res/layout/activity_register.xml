@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@color/transparent"
+              android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="45dip"
+        android:background="@color/white">
+
+        <ImageView
+            android:id="@+id/iv_back"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerVertical="true"
+            android:paddingLeft="10dip"
+            android:paddingRight="10dip"
+            android:src="@mipmap/back"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="注册"
+            android:textColor="@color/black"
+            android:textSize="16sp"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="35dip"
+        android:layout_marginTop="20dip"
+        android:paddingLeft="10dip"
+        android:paddingRight="10dip">
+
+        <Button
+            android:id="@+id/btn_get"
+            android:layout_width="80dip"
+            android:layout_height="35dip"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/modify_button"
+            android:text="获取数据"
+            android:textColor="@color/white"/>
+
+
+        <EditText
+            android:id="@+id/et_id"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginRight="20dip"
+            android:layout_toLeftOf="@+id/btn_get"
+            android:background="@color/white"
+            android:hint="请输入身份证号"
+            android:lines="1"
+            android:paddingLeft="5dip"
+            android:paddingRight="5dip"
+            android:textSize="12sp"/>
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="150dip"
+                android:layout_marginLeft="10dip"
+                android:layout_marginRight="10dip"
+                android:layout_marginTop="20dip">
+
+
+                <ImageView
+                    android:id="@+id/iv_img"
+                    android:layout_width="110dip"
+                    android:layout_height="190dip"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:src="@mipmap/register_header_default"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="10dip"
+                    android:layout_toLeftOf="@+id/iv_img"
+                    android:orientation="vertical">
+
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dip"
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="80dip"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:gravity="right"
+                            android:text="姓名："
+                            android:textColor="@color/black"/>
+
+                        <TextView
+                            android:id="@+id/tv_name"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginBottom="5dip"
+                            android:layout_marginLeft="10dip"
+                            android:layout_marginTop="5dip"
+                            android:background="@color/white"
+                            android:gravity="center_vertical"
+                            android:text="未获取数据"
+                            android:textColor="@color/black"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dip"
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="80dip"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:gravity="right"
+                            android:text="电话："
+                            android:textColor="@color/black"/>
+
+                        <TextView
+                            android:id="@+id/tv_phone"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginBottom="5dip"
+                            android:layout_marginLeft="10dip"
+                            android:layout_marginTop="5dip"
+                            android:background="@color/white"
+                            android:gravity="center_vertical"
+                            android:text="未获取数据"
+                            android:textColor="@color/black"/>
+
+                    </LinearLayout>
+
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dip"
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
+
+
+                        <TextView
+                            android:layout_width="80dip"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:gravity="right"
+                            android:text="密码："
+                            android:textColor="@color/black"/>
+
+
+                        <EditText
+                            android:id="@+id/et_password"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginBottom="5dip"
+                            android:layout_marginLeft="10dip"
+                            android:layout_marginTop="5dip"
+                            android:background="@color/white"
+                            android:gravity="center_vertical"
+                            android:hint="请输入密码"
+                            android:inputType="textPassword"
+                            android:paddingLeft="2dip"
+                            android:paddingRight="2dip"
+                            android:textColor="@color/black"
+                            android:textSize="12sp"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dip"
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="80dip"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:gravity="right"
+                            android:text="重复密码："
+                            android:textColor="@color/black"/>
+
+
+                        <EditText
+                            android:id="@+id/et_repassword"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginBottom="5dip"
+                            android:layout_marginLeft="10dip"
+                            android:layout_marginTop="5dip"
+                            android:background="@color/white"
+                            android:gravity="center_vertical"
+                            android:hint="请再输入密码"
+                            android:inputType="textPassword"
+                            android:paddingLeft="2dip"
+                            android:paddingRight="2dip"
+                            android:textColor="@color/black"
+                            android:textSize="12sp"/>
+
+                    </LinearLayout>
+
+
+                </LinearLayout>
+
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="10dip"
+                android:layout_marginLeft="10dip"
+                android:layout_marginRight="10dip">
+
+
+                <TextView
+                    android:layout_width="80dip"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:text="学习类型："
+                    android:textColor="@color/black"
+                    android:layout_gravity="center_vertical"/>
+
+
+                <Spinner
+                    android:id="@+id/spinner_type"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dip"></Spinner>
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="10dip"
+                android:layout_marginLeft="10dip"
+                android:layout_marginRight="10dip">
+
+
+                <TextView
+                    android:layout_width="80dip"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:text="资格证号："
+                    android:textColor="@color/black"
+                    android:layout_gravity="center_vertical"/>
+
+
+                <TextView
+                    android:id="@+id/tv_qualification"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="5dip"
+                    android:layout_marginLeft="10dip"
+                    android:paddingTop="5dip"
+                    android:background="@color/white"
+                    android:gravity="center_vertical"
+                    android:text="未获取数据"
+                    android:textColor="@color/black"/>
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginLeft="10dip"
+                android:layout_marginRight="10dip"
+                android:layout_marginTop="10dip">
+
+                <TextView
+                    android:layout_width="80dip"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:gravity="right"
+                    android:text="所属区域："
+                    android:textColor="@color/black"/>
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dip"
+                    android:orientation="vertical">
+
+                    <Spinner
+                        android:id="@+id/spinner_city"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+
+                        android:layout_marginLeft="10dip"></Spinner>
+
+
+                    <Spinner
+                        android:id="@+id/spinner_area"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dip"
+                        android:layout_marginTop="10dip"></Spinner>
+
+                </LinearLayout>
+
+
+
+
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="10dip"
+                android:layout_marginLeft="10dip"
+                android:layout_marginRight="10dip">
+
+
+                <TextView
+                    android:layout_width="80dip"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:text="证件初领日期："
+                    android:textColor="@color/black"
+                    android:layout_gravity="center_vertical"/>
+
+
+                <TextView
+                    android:id="@+id/tv_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="5dip"
+                    android:layout_marginLeft="10dip"
+                    android:paddingTop="5dip"
+                    android:background="@color/white"
+                    android:gravity="center_vertical"
+                    android:text="未获取数据"
+                    android:textColor="@color/black"/>
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="10dip"
+                android:layout_marginLeft="10dip"
+                android:layout_marginRight="10dip">
+
+
+                <TextView
+                    android:layout_width="80dip"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:text="学习周期："
+                    android:textColor="@color/black"
+                    android:layout_gravity="center_vertical"/>
+
+
+                <Spinner
+                    android:id="@+id/spinner_cycle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dip"></Spinner>
+
+            </LinearLayout>
+            
+            
+            <Button
+                android:id="@+id/btn_register"
+                android:layout_width="100dip"
+                android:layout_height="35dip"
+                android:text="注册"
+                android:layout_marginTop="20dip"
+                android:layout_gravity="center_horizontal"
+                android:textColor="@color/white"
+                android:background="@drawable/modify_button"/>
+
+
+        </LinearLayout>
+
+    </ScrollView>
+</LinearLayout>

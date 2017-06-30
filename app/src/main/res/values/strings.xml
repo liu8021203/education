@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">education</string>
+
+    <string name="location_phone">联系电话：400-069-0359</string>
+    <string name="location_qq">在线QQ：3549444030</string>
+    <string name="location_address">公司地址：山西省运城市河东广场西侧凰金园大厦D座12层</string>
+    <string name="about">\t\t\t山西双锋黑子网络科技有限公司成立于2003年，主要致力于软件开发，2014年由有20多年驾培管理者加盟，开始致力于驾驶员安全素质在线教育软件开发。2016年4月研发出了“易通道路驾驶员继续教育平台”（www.ytjppt.com）,面向全省为道路运输驾驶员提供网络远程继续教育服务。平台为驾驶员提供在线学习、专家点评、模拟练习、在线考核等主要功能。同时还是设有新知识传输、专家在线等附加功能，有效地解决了驾驶员的工学矛盾，降低了驾驶员的培训成本。</string>
+</resources>
