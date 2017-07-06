@@ -111,6 +111,10 @@ public interface HttpService {
     @POST("user/getExamrecordList")
     Observable<ExamRecordResult> getExamrecordList(@Field("token") String token, @Field("pagenum") String pagenum);
 
+
+    @POST("login/getSysParam")
+    Observable<ExamRecordResult> getSysParam();
+
 //    @Multipart
 //    @POST("login/url2url")
 //    Observable<FaceResult> url2url(@PartMap Map<String, RequestBody> params);

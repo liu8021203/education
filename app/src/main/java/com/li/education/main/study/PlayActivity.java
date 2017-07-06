@@ -82,6 +82,8 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
 
     private int pauseTime = 0;
     private int pause = 8;
+    //循环上传
+    private int n = 1;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -100,14 +102,14 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
             if (currVO.getFinished().equals("N")) {
                 //判断是否学习中
                 if (currVO.getFinishing().equals("Y")) {
-                    currTime = Integer.valueOf(currVO.getVideoTime());
+                    currTime = Integer.valueOf(currVO.getVideoTime()) * 1000;
                 }
             }
         }
         pause = UtilSPutil.getInstance(this).getInt("pause", 8);
         initView();
         startTime = UtilDate.format(System.currentTimeMillis(), "yyyy-MM-dd HH:mm:ss");
-        faceHandler.sendEmptyMessageDelayed(0,1000);
+//        faceHandler.sendEmptyMessageDelayed(0,1000);
     }
 
     private Handler faceHandler = new Handler(){
@@ -124,6 +126,7 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
             super.handleMessage(msg);
             if(faceTime == 0){
                 face();
+                mHandler.removeCallbacksAndMessages(null);
             }else{
                 faceTime--;
                 Log.d("face", faceTime + "");
@@ -137,11 +140,15 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             if(pauseTime >= 60 * pause){
+                AppData.data.clear();
+                pauseTime = 0;
+                pauseHandler.removeCallbacksAndMessages(null);
                 showToast("暂停时间太长自动退出学习状态");
                 finish();
             }else{
                 pauseTime++;
                 pauseHandler.sendEmptyMessageDelayed(0,1000);
+                Log.d("qqq", pauseTime + "");
             }
         }
     };
@@ -183,6 +190,13 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
     @Override
     protected void onResume() {
         super.onResume();
+        long timeTmp = UtilSPutil.getInstance(this).getLong("background", 0);
+        if(timeTmp != 0 && System.currentTimeMillis() - timeTmp > this.pause * 60 * 1000){
+            AppData.data.clear();
+            UtilSPutil.getInstance(this).setLong("background", 0);
+            showToast("超过8分钟，自动退出学习");
+            finish();
+        }
     }
 
     @Override
@@ -193,6 +207,7 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
             mMediaController.pause();
         }
         mHandler.removeCallbacksAndMessages(null);
+        UtilSPutil.getInstance(this).setLong("background", System.currentTimeMillis());
     }
 
     @Override
@@ -213,6 +228,7 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
                 if (mVideoView.isPlaying()) {
                     mProgressWheel.setVisibility(View.VISIBLE);
                 }
+
                 break;
 
             case MEDIA_INFO_BUFFERING_END:
@@ -253,6 +269,7 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
                 mRlPlayNext.setVisibility(View.GONE);
                 currPosition++;
                 currVO = data.getSysEduTypeList().get(currPosition);
+                currTime = Integer.valueOf(currVO.getVideoTime()) * 1000;
                 uri = Uri.parse(currVO.getPic());
                 mVideoView.setVideoURI(uri);
                 break;
@@ -294,8 +311,10 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
     @Override
     public void start() {
         mIvPlay.setVisibility(View.GONE);
-        mHandler.sendEmptyMessage(0);
+        mHandler.removeCallbacksAndMessages(null);
+        mHandler.sendEmptyMessageDelayed(0,1000);
         pauseHandler.removeCallbacksAndMessages(null);
+        pauseTime = 0;
     }
 
     @Override
@@ -325,14 +344,14 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
                 uploadVO.setCode2(currVO.getCode2());
                 uploadVO.setCrtTime(startTime);
                 uploadVO.setUpdTime(endTime);
-                uploadVO.setStudyTime(String.valueOf(mVideoView.getCurrentPosition() - studyTime));
+                uploadVO.setStudyTime(String.valueOf(mVideoView.getCurrentPosition() / 1000 - studyTime));
                 uploadVO.setFinishyn(isfinish);
                 uploadVO.setStopWatchTime(String.valueOf(mVideoView.getCurrentPosition()));
                 AppData.data.add(uploadVO);
             } else {
                 tempVO.setUpdTime(endTime);
                 tempVO.setStopWatchTime(String.valueOf(mVideoView.getCurrentPosition()));
-                tempVO.setStudyTime(String.valueOf(mVideoView.getCurrentPosition() - studyTime));
+                tempVO.setStudyTime(String.valueOf(mVideoView.getCurrentPosition() / 1000 - studyTime));
             }
         }
         if (isValid()) {
@@ -348,6 +367,7 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
             @Override
             public void onStart() {
                 super.onStart();
+                Log.d("www", "onStart");
             }
 
             @Override
@@ -356,14 +376,27 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
 
             @Override
             public void onError(Throwable e) {
+                Log.d("www", "onError");
                 e.printStackTrace();
+                if(n <= 3) {
+                    n++;
+                    String jsonStr = UtilGson.toJson(AppData.data);
+                    upload(jsonStr);
+                }
             }
 
             @Override
             public void onNext(BaseResult result) {
+                Log.d("www", "onNext");
                 if (result.isStatus()) {
                     AppData.data.clear();
-                    currVO.setVideoTime(String.valueOf(currTime));
+                    currVO.setVideoTime(String.valueOf(currTime / 1000));
+                }else{
+                    if(n <= 3) {
+                        n++;
+                        String jsonStr = UtilGson.toJson(AppData.data);
+                        upload(jsonStr);
+                    }
                 }
             }
         });
@@ -386,13 +419,13 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
         if(AppData.cycle_code.equals("1") || AppData.cycle_code.equals("2")){
             if(data.getLongtime() > 690 * 60){
                 return true;
-            }else if(totalTime >= 1800){
+            }else if(totalTime >= 30 * 60){
                 return true;
             }
         }else{
             if(data.getLongtime() > 1410 * 60){
                 return true;
-            }else if(totalTime >= 1800){
+            }else if(totalTime >= 30 * 60){
                 return true;
             }
         }
@@ -414,7 +447,6 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
 
             case 1:
                 initFaceTime();
-                mHandler.sendEmptyMessageDelayed(0, 1000);
                 break;
         }
     }

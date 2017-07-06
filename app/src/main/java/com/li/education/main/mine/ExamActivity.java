@@ -687,9 +687,7 @@ public class ExamActivity extends BaseActivity implements View.OnClickListener {
                 break;
 
             case R.id.btn_commit:
-                ScoreDialog dialog = new ScoreDialog(ExamActivity.this);
-                dialog.setScore(88);
-                dialog.show();
+                calculate();
                 break;
         }
     }

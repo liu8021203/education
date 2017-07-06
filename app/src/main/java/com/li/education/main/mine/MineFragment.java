@@ -18,8 +18,11 @@ import com.li.education.base.BaseActivity;
 import com.li.education.base.BaseFragment;
 import com.li.education.base.bean.BaseResult;
 import com.li.education.base.bean.HomeResult;
+import com.li.education.base.bean.InfoResult;
 import com.li.education.base.bean.vo.AreaVO;
 import com.li.education.base.bean.vo.CityVO;
+import com.li.education.base.common.BaseSubscriber;
+import com.li.education.base.common.TokenManager;
 import com.li.education.base.http.HttpService;
 import com.li.education.base.http.RetrofitUtil;
 import com.li.education.main.identify.IdentifyActivity;
@@ -77,6 +80,7 @@ public class MineFragment extends BaseFragment implements View.OnClickListener {
         super.onActivityCreated(savedInstanceState);
         mActivity = (MainActivity) getActivity();
         initView();
+        getInfo();
     }
 
     private void initView() {
@@ -117,7 +121,11 @@ public class MineFragment extends BaseFragment implements View.OnClickListener {
                 if(TextUtils.isEmpty(AppData.token)){
                     UtilIntent.intentDIYLeftToRight(getActivity(), LoginActivity.class);
                 }else {
-                    UtilIntent.intentDIYLeftToRight(getActivity(), ExamActivity.class);
+                    if(TokenManager.getUserInfo() != null && TokenManager.getUserInfo().getExamYN().equals("Y")) {
+                        UtilIntent.intentDIYLeftToRight(getActivity(), ExamActivity.class);
+                    }else{
+                        mActivity.showToast("请学习完相关课程再进行考试");
+                    }
                 }
                 break;
 
@@ -240,7 +248,6 @@ public class MineFragment extends BaseFragment implements View.OnClickListener {
         RequestBody bodyToken = RequestBody.create(MediaType.parse("text/plain"), AppData.token);
         map.put("token", bodyToken);
         RetrofitUtil.getInstance().create(HttpService.class).updUserImg(map).subscribeOn(io()).observeOn(mainThread()).subscribe(new Subscriber<BaseResult>() {
-
             @Override
             public void onStart() {
                 super.onStart();
@@ -260,6 +267,35 @@ public class MineFragment extends BaseFragment implements View.OnClickListener {
 
             @Override
             public void onNext(BaseResult result) {
+            }
+        });
+    }
+
+    private void getInfo(){
+        RetrofitUtil.getInstance().create(HttpService.class).getUserInfo(AppData.token).subscribeOn(io()).observeOn(mainThread()).subscribe(new BaseSubscriber<InfoResult>((BaseActivity) getActivity()) {
+
+            @Override
+            public void onStart() {
+                super.onStart();
+                mActivity.showProgressDialog();
+            }
+
+            @Override
+            public void onCompleted() {
+                mActivity.removeProgressDialog();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                mActivity.removeProgressDialog();
+                e.printStackTrace();
+            }
+
+
+            @Override
+            public void success(InfoResult result) {
+                TokenManager.setUserInfo(result.getData());
+                UtilGlide.loadHeaderImg(getActivity(), mHeadImg, result.getData().getFacefirsturl());
             }
         });
     }

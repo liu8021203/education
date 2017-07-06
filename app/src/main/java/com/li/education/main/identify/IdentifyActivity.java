@@ -188,6 +188,8 @@ public class IdentifyActivity extends BaseActivity {
     //是否是从home来的
     private boolean isBackground = false;
 
+    private int n = 0;
+
 
     /**
      * Orientation of the camera sensor
@@ -219,8 +221,15 @@ public class IdentifyActivity extends BaseActivity {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            startAction();
-            checkAction();
+            switch (msg.what){
+                case 0:
+                    startAction();
+                    actionHandler.sendEmptyMessageDelayed(1,2000);
+                    break;
+                case 1:
+                    checkAction();
+                    break;
+            }
         }
     };
 
@@ -278,7 +287,12 @@ public class IdentifyActivity extends BaseActivity {
                                     setResult(1);
                                     finish();
                                 } else {
-                                    showDialog("人脸动作验证失败", 2);
+                                    if(n < 10) {
+                                        n++;
+                                        showDialog("人脸动作验证失败", 2);
+                                    }else{
+                                        showDialog("人脸动作验证失败", 1);
+                                    }
                                 }
                             }
                             break;
@@ -288,7 +302,12 @@ public class IdentifyActivity extends BaseActivity {
                                     setResult(1);
                                     finish();
                                 } else {
-                                    showDialog("人脸动作验证失败", 2);
+                                    if(n < 10) {
+                                        n++;
+                                        showDialog("人脸动作验证失败", 2);
+                                    }else{
+                                        showDialog("人脸动作验证失败", 1);
+                                    }
                                 }
                             }
                             break;
@@ -297,7 +316,12 @@ public class IdentifyActivity extends BaseActivity {
                                     setResult(1);
                                     finish();
                                 } else {
-                                    showDialog("人脸动作验证失败", 2);
+                                    if(n < 10) {
+                                        n++;
+                                        showDialog("人脸动作验证失败", 2);
+                                    }else{
+                                        showDialog("人脸动作验证失败", 1);
+                                    }
                                 }
                             }
                             break;
@@ -344,7 +368,6 @@ public class IdentifyActivity extends BaseActivity {
                         isChecking = true;
                         isCheckAction = false;
                         Face2FaceVO faceVO = (Face2FaceVO) UtilGson.fromJson(result.getData().getFace2faceResult(), Face2FaceVO.class);
-
                     } else {
                         showDialog("人脸识别不通过", 1);
                         isChecking = false;
@@ -440,7 +463,7 @@ public class IdentifyActivity extends BaseActivity {
                 }
                 if (!isCheckAction && mBitmap != null) {
                     isCheckAction = true;
-                    actionHandler.sendEmptyMessageDelayed(0,2000);
+                    actionHandler.sendEmptyMessageDelayed(0,1000);
                 }
             }
         }

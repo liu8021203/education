@@ -3,6 +3,9 @@ package com.li.education.base.http;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -14,15 +17,21 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class RetrofitUtil {
     public static Retrofit retrofit = null;
     public static Retrofit faceRetrofit = null;
+    private static final long DEFAULT_TIMEOUT = 20 * 60;
 
     public static Retrofit getInstance() {
         if (retrofit == null) {
 //            Gson gson = new GsonBuilder()
 //                    .setDateFormat("yyyy-MM-dd")
 //                    .create();
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
+                    .writeTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
+                    .readTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
+                    .build();
             retrofit = new Retrofit.Builder().baseUrl("http://59.110.242.72:8080/yitongeduapp/").
                     addConverterFactory(GsonConverterFactory.create()).
-                    addCallAdapterFactory(RxJavaCallAdapterFactory.create()).build();
+                    addCallAdapterFactory(RxJavaCallAdapterFactory.create()).client(client).build();
         }
         return retrofit;
     }

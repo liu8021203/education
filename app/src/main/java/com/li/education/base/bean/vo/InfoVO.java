@@ -24,6 +24,11 @@ public class InfoVO {
     private String facefirsturl;
     private long cyzg_clrq;
     private String persontype;
+    private String examYN;
+
+    public String getExamYN() {
+        return examYN;
+    }
 
     public int getId() {
         return id;
