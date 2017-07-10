@@ -295,7 +295,9 @@ public class MineFragment extends BaseFragment implements View.OnClickListener {
             @Override
             public void success(InfoResult result) {
                 TokenManager.setUserInfo(result.getData());
-                UtilGlide.loadHeaderImg(getActivity(), mHeadImg, result.getData().getFacefirsturl());
+//                UtilGlide.loadHeaderImg(getActivity(), mHeadImg, result.getData().getFacefirsturl());
+                Bitmap bitmap = UtilBitmap.base64ToBitmap(result.getData().getFacefirsturl());
+                mHeadImg.setImageBitmap(bitmap);
             }
         });
     }

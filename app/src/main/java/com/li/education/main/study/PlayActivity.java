@@ -148,14 +148,12 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
             }else{
                 pauseTime++;
                 pauseHandler.sendEmptyMessageDelayed(0,1000);
-                Log.d("qqq", pauseTime + "");
             }
         }
     };
 
     private void initView() {
         mTvTime = (TextView) findViewById(R.id.tv_time);
-        mTvTime.setText("有效学时：" + data.getLongtime() / 60);
         mVideoView = (VideoView) findViewById(R.id.buffer);
         uri = Uri.parse(currVO.getPic());
         mVideoView.setVideoURI(uri);
@@ -270,6 +268,7 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
                 currPosition++;
                 currVO = data.getSysEduTypeList().get(currPosition);
                 currTime = Integer.valueOf(currVO.getVideoTime()) * 1000;
+                startTime = UtilDate.format(System.currentTimeMillis(), "yyyy-MM-dd HH:mm:ss");
                 uri = Uri.parse(currVO.getPic());
                 mVideoView.setVideoURI(uri);
                 break;
@@ -329,6 +328,7 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
     }
 
     private void uploadData(String isfinish) {
+        Log.d("qqq", "执行了");
         PlayUploadVO tempVO = null;
         for (int i = 0; i < AppData.data.size(); i++) {
             if (AppData.data.get(i).getCode2().equals(currVO.getCode2())) {
@@ -416,6 +416,7 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
             long time = Integer.valueOf(vo.getStudyTime());
             totalTime += time;
         }
+        mTvTime.setText("有效学时：" + totalTime / 60 + "分钟");
         if(AppData.cycle_code.equals("1") || AppData.cycle_code.equals("2")){
             if(data.getLongtime() > 690 * 60){
                 return true;

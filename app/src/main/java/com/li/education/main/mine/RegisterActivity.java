@@ -302,10 +302,10 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
         RequestBody bodyType = RequestBody.create(MediaType.parse("text/plain"), typeVO.getCode());
         map.put("persontype", bodyType);
         CityVO cityVO = (CityVO) mSpinnerCity.getSelectedItem();
-        RequestBody bodyCity = RequestBody.create(MediaType.parse("text/plain"), cityVO.getCODE2());
-        map.put("area", bodyCity);
         AreaVO areaVO = (AreaVO) mSpinnerArea.getSelectedItem();
-        RequestBody bodyArea = RequestBody.create(MediaType.parse("text/plain"), areaVO.getCODE3());
+        RequestBody bodyCity = RequestBody.create(MediaType.parse("text/plain"), "14" + cityVO.getCODE2() + areaVO.getCODE3());
+        map.put("area", bodyCity);
+        RequestBody bodyArea = RequestBody.create(MediaType.parse("text/plain"), "山西省" + cityVO.getTITLE2() + areaVO.getTITLE3());
         map.put("tarea", bodyArea);
         RequestBody bodyObtaintime = RequestBody.create(MediaType.parse("text/plain"), vo.getCyzg_clrq());
         map.put("obtaintime", bodyObtaintime);

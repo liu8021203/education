@@ -1,5 +1,6 @@
 package com.li.education.main.mine;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
@@ -13,6 +14,7 @@ import com.li.education.base.bean.InfoResult;
 import com.li.education.base.bean.vo.InfoVO;
 import com.li.education.base.http.HttpService;
 import com.li.education.base.http.RetrofitUtil;
+import com.li.education.util.UtilBitmap;
 import com.li.education.util.UtilDate;
 import com.li.education.util.UtilGlide;
 
@@ -100,7 +102,8 @@ public class InfoActivity extends BaseActivity implements View.OnClickListener{
                                 break;
                         }
                         mTvTime.setText(UtilDate.format(vo.getCyzg_clrq(), "yyyy-MM-dd"));
-                        UtilGlide.loadHeaderImg(InfoActivity.this, mCvImg, vo.getFacefirsturl());
+                        Bitmap bitmap = UtilBitmap.base64ToBitmap(result.getData().getFacefirsturl());
+                        mCvImg.setImageBitmap(bitmap);
                     }
                 }
             }
