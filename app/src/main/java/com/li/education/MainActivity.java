@@ -8,6 +8,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
@@ -39,6 +41,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private MineFragment mMineFragment;
 
     private FragmentManager mManager;
+
+    private boolean isExit = false;
 
 
     @Override
@@ -222,6 +226,26 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 mMineFragment.setHeadImg(bitmap1);
             }
 
+        }
+    }
+
+    private Handler mHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            isExit = false;
+        }
+    };
+
+    @Override
+    public void onBackPressed() {
+        if(!isExit){
+            isExit = true;
+            showToast("请再点击一次");
+            mHandler.sendEmptyMessageDelayed(0,2000);
+        }else{
+            finish();
+            android.os.Process.killProcess(android.os.Process.myPid());
         }
     }
 }

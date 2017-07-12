@@ -364,6 +364,8 @@ public class IdentifyActivity extends BaseActivity {
             @Override
             public void onNext(FaceResult result) {
                 if(!isExit) {
+//                    setResult(1);
+//                    finish();
                     if (result.isStatus()) {
                         isChecking = true;
                         isCheckAction = false;

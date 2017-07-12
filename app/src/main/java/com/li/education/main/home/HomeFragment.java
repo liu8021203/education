@@ -108,18 +108,10 @@ public class HomeFragment extends BaseFragment implements OnRefreshListener, OnL
         mViewPager.setWheel(true);
         mViewPager.setTime(4000);
         mViewPager.setIndicatorRes(R.mipmap.banner_unselect, R.mipmap.banner_select);
-        mScrollView.getViewTreeObserver().addOnScrollChangedListener(mOnScrollChangedListener);
+        mSwipeToLoadLayout.setLoadMoreEnabled(false);
     }
 
-    ViewTreeObserver.OnScrollChangedListener mOnScrollChangedListener = new ViewTreeObserver.OnScrollChangedListener() {
 
-        @Override
-        public void onScrollChanged() {
-            if (mScrollView.getChildAt(0).getHeight() < mScrollView.getScrollY() + mScrollView.getHeight() && !ViewCompat.canScrollVertically(mScrollView, 1)) {
-                mSwipeToLoadLayout.setLoadingMore(true);
-            }
-        }
-    };
 
     private void initData(HomeResult result){
         if(result != null && result.getData() != null && result.getData().getNewsList() != null){

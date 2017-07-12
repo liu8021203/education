@@ -29,7 +29,7 @@ public class RetrofitUtil {
                     .writeTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
                     .readTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
                     .build();
-            retrofit = new Retrofit.Builder().baseUrl("http://59.110.242.72:8080/yitongeduapp/").
+            retrofit = new Retrofit.Builder().baseUrl("http://60.222.232.21:8081/yitongeduapp/").
                     addConverterFactory(GsonConverterFactory.create()).
                     addCallAdapterFactory(RxJavaCallAdapterFactory.create()).client(client).build();
         }

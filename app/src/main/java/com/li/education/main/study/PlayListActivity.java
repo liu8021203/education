@@ -17,7 +17,9 @@ import com.li.education.base.bean.StudyResult;
 import com.li.education.base.http.HttpService;
 import com.li.education.base.http.RetrofitUtil;
 import com.li.education.main.home.CustomItemDecoration;
+import com.li.education.main.mine.LoginActivity;
 import com.li.education.main.study.adapter.ChapterAdapter;
+import com.li.education.util.UtilIntent;
 
 import rx.Subscriber;
 
@@ -33,6 +35,7 @@ public class PlayListActivity extends BaseActivity implements View.OnClickListen
     private TextView mTvTime;
     private RecyclerView mRecyclerView;
     private ChapterAdapter mAdapter;
+    private String code1;
 
 
     @Override
@@ -41,11 +44,10 @@ public class PlayListActivity extends BaseActivity implements View.OnClickListen
         setContentView(R.layout.activity_play_list);
         initView();
         Bundle bundle = getIntent().getExtras();
-        String code1 = bundle.getString("code1");
+        code1 = bundle.getString("code1");
         if(TextUtils.isEmpty(code1)){
             showToast("数据有误，请联系客服");
-        }else{
-            getData(code1);
+            finish();
         }
     }
 
@@ -57,6 +59,12 @@ public class PlayListActivity extends BaseActivity implements View.OnClickListen
         LinearLayoutManager manager = new LinearLayoutManager(this);
         mRecyclerView.addItemDecoration(new CustomItemDecoration(1, 0xffd9e0f2));
         mRecyclerView.setLayoutManager(manager);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getData(code1);
     }
 
     @Override
@@ -102,11 +110,11 @@ public class PlayListActivity extends BaseActivity implements View.OnClickListen
                             mAdapter.setListVO(result.getData());
                             mAdapter.notifyDataSetChanged();
                         }
-                        int time = 0;
-                        if(result.getData().getLongtime() != 0){
-                            time = (int) (result.getData().getLongtime() / 60);
+                        mTvTime.setText("本次总学时为" + result.getData().getSumEduTime() + "，已完成学时" + result.getData().getLongtime() + "分钟");
+                    }else{
+                        if(result.getMessage().equals("99")){
+                            UtilIntent.intentDIYLeftToRight(PlayListActivity.this, LoginActivity.class);
                         }
-                        mTvTime.setText("本次总学时为" + result.getData().getSumEduTime() + "，已完成学时" + time + "分钟");
                     }
                 }
             }

@@ -313,7 +313,7 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
         RequestBody bodyCycle = RequestBody.create(MediaType.parse("text/plain"), cycleVO.getCode());
         map.put("cycle", bodyCycle);
         RequestBody bodyZyzgzh = RequestBody.create(MediaType.parse("text/plain"), vo.getCyzgzh());
-        map.put("zyzgzh", bodyZyzgzh);
+        map.put("cyzgzh", bodyZyzgzh);
         RequestBody bodyCyzglb = RequestBody.create(MediaType.parse("text/plain"), vo.getCyzglb());
         map.put("cyzglb", bodyCyzglb);
         RequestBody bodyCyzg_yxqz = RequestBody.create(MediaType.parse("text/plain"), vo.getXcyzg_yxqz());

@@ -18,7 +18,9 @@ import com.li.education.base.bean.StudyResult;
 import com.li.education.base.http.HttpService;
 import com.li.education.base.http.RetrofitUtil;
 import com.li.education.main.home.CustomItemDecoration;
+import com.li.education.main.mine.LoginActivity;
 import com.li.education.main.study.adapter.StudyAdapter;
+import com.li.education.util.UtilIntent;
 import com.li.education.view.CommonLayout;
 
 import rx.Subscriber;
@@ -53,7 +55,7 @@ public class StudyFragment extends BaseFragment implements View.OnClickListener{
         super.onActivityCreated(savedInstanceState);
         initView();
         mActivity = (MainActivity) getActivity();
-        getData(AppData.token);
+
     }
 
     private void initView() {
@@ -139,8 +141,12 @@ public class StudyFragment extends BaseFragment implements View.OnClickListener{
                         mCommonLayout.show(CommonLayout.SHOW_RELOAD);
                     }
                 }else{
-                    mCommonLayout.show(CommonLayout.SHOW_RELOAD);
-                    mActivity.showToast(result.getMessage());
+                    if(result.getMessage().equals("99")){
+                        UtilIntent.intentDIYLeftToRight(getActivity(), LoginActivity.class);
+                    }else {
+                        mCommonLayout.show(CommonLayout.SHOW_RELOAD);
+                        mActivity.showToast(result.getMessage());
+                    }
                 }
             }
         });
@@ -153,5 +159,12 @@ public class StudyFragment extends BaseFragment implements View.OnClickListener{
                 getData(AppData.token);
                 break;
         }
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getData(AppData.token);
     }
 }

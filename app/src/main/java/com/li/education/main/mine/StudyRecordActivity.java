@@ -16,6 +16,8 @@ import com.li.education.base.AppData;
 import com.li.education.base.BaseActivity;
 import com.li.education.base.bean.BaseResult;
 import com.li.education.base.bean.HomeResult;
+import com.li.education.base.bean.StudyRecord;
+import com.li.education.base.bean.StudyRecordResult;
 import com.li.education.base.http.HttpService;
 import com.li.education.base.http.RetrofitUtil;
 import com.li.education.main.home.CustomItemDecoration;
@@ -32,11 +34,10 @@ import static rx.schedulers.Schedulers.io;
 
 public class StudyRecordActivity extends BaseActivity implements View.OnClickListener, OnRefreshListener, OnLoadMoreListener{
     private ImageView mIvBack;
-    private TextView mTvTime;
     private RecyclerView mRecyclerView;
     private StudyRecordAdapter mAdapter;
     private SwipeToLoadLayout mSwipeToLoadLayout;
-    private int currIndex = 1;
+    private int page = 1;
 
 
     @Override
@@ -44,19 +45,16 @@ public class StudyRecordActivity extends BaseActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_study_record);
         initView();
-        getData(String.valueOf(currIndex));
+        getData(0);
     }
 
     private void initView() {
         mIvBack = (ImageView) findViewById(R.id.iv_back);
         mIvBack.setOnClickListener(this);
-        mTvTime = (TextView) findViewById(R.id.tv_time);
         mRecyclerView = (RecyclerView) findViewById(R.id.swipe_target);
         LinearLayoutManager manager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(manager);
         mRecyclerView.addItemDecoration(new CustomItemDecoration(1, 0xffe9edf8));
-        mAdapter = new StudyRecordAdapter(this);
-        mRecyclerView.setAdapter(mAdapter);
         mSwipeToLoadLayout = (SwipeToLoadLayout) findViewById(R.id.swipe_to_load_layout);
         mSwipeToLoadLayout.setOnRefreshListener(this);
         mSwipeToLoadLayout.setOnLoadMoreListener(this);
@@ -72,8 +70,8 @@ public class StudyRecordActivity extends BaseActivity implements View.OnClickLis
     }
 
 
-    private void getData(String pagenum){
-        RetrofitUtil.getInstance().create(HttpService.class).getLearnrecordList(AppData.token, pagenum).subscribeOn(io()).observeOn(mainThread()).subscribe(new Subscriber<BaseResult>() {
+    private void getData(final int type){
+        RetrofitUtil.getInstance().create(HttpService.class).getLearnrecordList(AppData.token, String.valueOf(page)).subscribeOn(io()).observeOn(mainThread()).subscribe(new Subscriber<StudyRecord>() {
 
             @Override
             public void onStart() {
@@ -83,18 +81,34 @@ public class StudyRecordActivity extends BaseActivity implements View.OnClickLis
             @Override
             public void onCompleted() {
                 mSwipeToLoadLayout.setRefreshing(false);
+                mSwipeToLoadLayout.setLoadingMore(false);
             }
 
             @Override
             public void onError(Throwable e) {
+                page--;
                 mSwipeToLoadLayout.setRefreshing(false);
-//                mSwipeToLoadLayout.isLoadingMore()
+                mSwipeToLoadLayout.setLoadingMore(false);
                 e.printStackTrace();
             }
 
             @Override
-            public void onNext(BaseResult result) {
+            public void onNext(StudyRecord result) {
                 if(result.isStatus()){
+                    if(mAdapter == null){
+                        mAdapter = new StudyRecordAdapter(StudyRecordActivity.this);
+                        mAdapter.setData(result.getData().getList());
+                        mRecyclerView.setAdapter(mAdapter);
+                    }else{
+                        if(type == 0){
+                            mAdapter.setData(result.getData().getList());
+                        }else{
+                            mAdapter.addData(result.getData().getList());
+                        }
+                        mAdapter.notifyDataSetChanged();
+                    }
+                }else{
+                    page--;
                 }
             }
         });
@@ -104,11 +118,13 @@ public class StudyRecordActivity extends BaseActivity implements View.OnClickLis
 
     @Override
     public void onLoadMore() {
-
+        page++;
+        getData(1);
     }
 
     @Override
     public void onRefresh() {
-
+        page = 1;
+        getData(0);
     }
 }

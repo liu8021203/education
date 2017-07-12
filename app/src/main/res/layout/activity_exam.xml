@@ -294,7 +294,7 @@
         <RelativeLayout
             android:id="@+id/rl_bottom_layout"
             android:layout_width="match_parent"
-            android:layout_height="70dip"
+            android:layout_height="120dip"
             android:visibility="gone"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
@@ -311,7 +311,7 @@
                 <Button
                     android:id="@+id/btn_commit"
                     android:layout_width="100dip"
-                    android:layout_height="30dip"
+                    android:layout_height="50dip"
                     android:background="@drawable/modify_button"
                     android:text="结束考核"
                     android:textColor="@color/white"/>
@@ -319,7 +319,7 @@
                 <Button
                     android:id="@+id/btn_again"
                     android:layout_width="100dip"
-                    android:layout_height="30dip"
+                    android:layout_height="50dip"
                     android:layout_marginTop="10dip"
                     android:background="@drawable/modify_button"
                     android:text="重新考核"

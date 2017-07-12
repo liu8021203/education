@@ -6,6 +6,8 @@ import com.li.education.base.bean.ChapterResult;
 import com.li.education.base.bean.ExamRecordResult;
 import com.li.education.base.bean.FaceResult;
 import com.li.education.base.bean.LoginResult;
+import com.li.education.base.bean.StudyRecord;
+import com.li.education.base.bean.StudyRecordResult;
 import com.li.education.base.bean.StudyResult;
 import com.li.education.base.bean.CityResult;
 import com.li.education.base.bean.HomeResult;
@@ -83,7 +85,7 @@ public interface HttpService {
 
     @FormUrlEncoded
     @POST("user/getLearnrecordList")
-    Observable<BaseResult> getLearnrecordList(@Field("token") String token, @Field("pagenum") String pagenum);
+    Observable<StudyRecord> getLearnrecordList(@Field("token") String token, @Field("pagenum") String pagenum);
 
     @FormUrlEncoded
     @POST("edu/insEduRecord")

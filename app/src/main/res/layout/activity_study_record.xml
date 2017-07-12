@@ -35,17 +35,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/tv_time"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:drawableLeft="@mipmap/time"
-            android:drawablePadding="5dip"
-            android:gravity="center_vertical"
-            android:padding="10dip"
-            android:text="本次总学时为0分钟，已完成学时30分钟"
-            android:textColor="@color/black"/>
-
 
         <com.aspsine.swipetoloadlayout.SwipeToLoadLayout
             android:id="@+id/swipe_to_load_layout"

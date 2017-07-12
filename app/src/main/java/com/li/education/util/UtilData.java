@@ -18,4 +18,19 @@ public class UtilData {
         int s = random.nextInt(max) % (max - min + 1) + min;
         return s;
     }
+
+
+    public static String getValidTime(int time){
+        if(time < 60){
+            return time + "秒";
+        }else{
+            int n = time / 60;
+            int remainder = time - n * 60;
+            if(remainder == 0){
+                return n + "分";
+            }else{
+                return  n + "分" + remainder + "秒";
+            }
+        }
+    }
 }

@@ -8,6 +8,9 @@ import android.widget.TextView;
 
 import com.li.education.R;
 import com.li.education.base.BaseActivity;
+import com.li.education.base.bean.vo.StudyRecordVO;
+import com.li.education.util.UtilData;
+import com.li.education.util.UtilDate;
 
 /**
  * Created by liu on 2017/6/19.
@@ -19,11 +22,14 @@ public class StudyRecordDetailsActivity extends BaseActivity{
     private TextView mTvTimeNum;
     private TextView mTvStart;
     private TextView mTvEnd;
+    private StudyRecordVO mVO;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_study_details);
+        Bundle bundle = getIntent().getExtras();
+        mVO = (StudyRecordVO) bundle.getSerializable("vo");
         initView();
     }
 
@@ -39,5 +45,10 @@ public class StudyRecordDetailsActivity extends BaseActivity{
         mTvTimeNum = (TextView) findViewById(R.id.tv_time);
         mTvStart = (TextView) findViewById(R.id.tv_start);
         mTvEnd = (TextView) findViewById(R.id.tv_end);
+        mTvName.setText(mVO.getTypetitle());
+        mTvTimeNum.setText(mVO.getLongtime() + "分");
+        mTvStart.setText(UtilDate.format(mVO.getStarttime(),"yyyy-MM-dd HH:mm:ss"));
+        mTvEnd.setText(UtilDate.format(mVO.getEndtime(), "yyyy-MM-dd HH:mm:ss"));
     }
+
 }
