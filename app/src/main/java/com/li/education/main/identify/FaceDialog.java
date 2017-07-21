@@ -20,6 +20,7 @@ import com.li.education.R;
 public class FaceDialog extends Dialog implements View.OnClickListener{
     private Button mBtnCancle;
     private Button mBtnVerify;
+    private View vLine;
     private TextView mTvContent;
     private String content;
     //0：人脸不能离开人脸框，1：人脸对比， 2：人脸动作
@@ -65,6 +66,7 @@ public class FaceDialog extends Dialog implements View.OnClickListener{
         mBtnVerify = (Button) findViewById(R.id.btn_verify);
         mBtnVerify.setOnClickListener(this);
         mTvContent = (TextView) findViewById(R.id.tv_content);
+        vLine = findViewById(R.id.v_line);
     }
 
     @Override
@@ -101,6 +103,14 @@ public class FaceDialog extends Dialog implements View.OnClickListener{
     public void show() {
         super.show();
         mTvContent.setText(content);
+        if(type == 0){
+            mBtnVerify.setVisibility(View.GONE);
+            vLine.setVisibility(View.GONE);
+        }else{
+            mBtnCancle.setVisibility(View.VISIBLE);
+            mBtnVerify.setVisibility(View.VISIBLE);
+            vLine.setVisibility(View.VISIBLE);
+        }
     }
 
     public interface FaceCallBackListener{

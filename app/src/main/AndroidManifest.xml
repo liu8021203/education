@@ -10,6 +10,21 @@
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
     <uses-permission android:name="android.permission.CALL_PHONE"></uses-permission>
+    <uses-permission android:name="android.permission.REQUIRED_PERMISSION_HERE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_LOGS" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.CAPTURE_AUDIO_OUTPUT" />
+    <uses-permission android:name="android.permission.CAPTURE_VIDEO_OUTPUT"/>
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-feature android:name="android.hardware.camera"/>
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION"/>
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
 
     <application
         android:name=".base.BaseApplication"
@@ -34,14 +49,18 @@
         <activity android:name=".main.mine.ModifyActivity"></activity>
         <activity android:name=".main.mine.FeedBackActivity"></activity>
         <activity android:name=".main.home.NewDetailsActivity"></activity>
-        <activity android:name=".main.study.PlayActivity"
-                  android:configChanges="keyboardHidden|orientation|screenSize"></activity>
+        <activity
+            android:name=".main.study.PlayActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"></activity>
         <activity android:name=".main.mine.RegisterActivity"></activity>
         <activity android:name=".main.mine.LocationActivity"></activity>
         <activity android:name=".main.mine.AboutActivity"></activity>
         <activity android:name=".main.mine.StudyRecordActivity"></activity>
         <activity android:name=".main.study.PlayListActivity"></activity>
         <activity android:name=".main.mine.StudyRecordDetailsActivity"></activity>
+        <activity
+            android:name=".main.identify.ScanActivity"
+            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>

@@ -12,4 +12,5 @@
     <color name="viewfinder_mask">#60000000</color>
     <color name="transparent">#eaebec</color>
     <color name="line">#d9e0f2</color>
+    <color name="mediacontroller_bg">#99000000</color>
 </resources>

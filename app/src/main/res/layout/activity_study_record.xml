@@ -31,38 +31,44 @@
 
     </RelativeLayout>
 
-    <com.li.education.view.CommonLayout
+
+    <TextView
+        android:id="@+id/tv_time"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:drawableLeft="@mipmap/time"
+        android:drawablePadding="3dip"
+        android:gravity="center_vertical"
+        android:padding="10dip"
+        android:text="本次总学时为0分钟，已完成学时0分钟"
+        android:textColor="@color/black"
+        android:textSize="14sp"/>
 
 
-        <com.aspsine.swipetoloadlayout.SwipeToLoadLayout
-            android:id="@+id/swipe_to_load_layout"
+    <com.aspsine.swipetoloadlayout.SwipeToLoadLayout
+        android:id="@+id/swipe_to_load_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:swipe_style="classic">
+
+        <include
+            android:id="@id/swipe_refresh_header"
+            layout="@layout/layout_twitter_header"/>
+
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/swipe_target"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:swipe_style="classic">
-
-            <include
-                android:id="@id/swipe_refresh_header"
-                layout="@layout/layout_twitter_header"/>
+            android:background="@color/white">
+        </android.support.v7.widget.RecyclerView>
 
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/swipe_target"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/white">
-            </android.support.v7.widget.RecyclerView>
+        <include
+            android:id="@id/swipe_load_more_footer"
+            layout="@layout/layout_classic_footer"/>
 
 
-            <include
-                android:id="@id/swipe_load_more_footer"
-                layout="@layout/layout_classic_footer"/>
-
-
-        </com.aspsine.swipetoloadlayout.SwipeToLoadLayout>
-
-
-    </com.li.education.view.CommonLayout>
+    </com.aspsine.swipetoloadlayout.SwipeToLoadLayout>
 
 </LinearLayout>

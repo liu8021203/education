@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
+              android:background="@color/transparent"
               android:orientation="vertical">
 
 
@@ -307,6 +308,7 @@
 
 
                 <LinearLayout
+                    android:id="@+id/ll_signout"
                     android:layout_width="match_parent"
                     android:layout_height="80dip"
                     android:orientation="horizontal"

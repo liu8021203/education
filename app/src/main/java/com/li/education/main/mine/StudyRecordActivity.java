@@ -34,6 +34,7 @@ import static rx.schedulers.Schedulers.io;
 
 public class StudyRecordActivity extends BaseActivity implements View.OnClickListener, OnRefreshListener, OnLoadMoreListener{
     private ImageView mIvBack;
+    private TextView tvTime;
     private RecyclerView mRecyclerView;
     private StudyRecordAdapter mAdapter;
     private SwipeToLoadLayout mSwipeToLoadLayout;
@@ -51,6 +52,7 @@ public class StudyRecordActivity extends BaseActivity implements View.OnClickLis
     private void initView() {
         mIvBack = (ImageView) findViewById(R.id.iv_back);
         mIvBack.setOnClickListener(this);
+        tvTime = (TextView) findViewById(R.id.tv_time);
         mRecyclerView = (RecyclerView) findViewById(R.id.swipe_target);
         LinearLayoutManager manager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(manager);
@@ -95,6 +97,7 @@ public class StudyRecordActivity extends BaseActivity implements View.OnClickLis
             @Override
             public void onNext(StudyRecord result) {
                 if(result.isStatus()){
+                    tvTime.setText("本次总学时为" + result.getData().getSumEduTime() + "，已完成学时" + result.getData().getLongtime() + "分钟");
                     if(mAdapter == null){
                         mAdapter = new StudyRecordAdapter(StudyRecordActivity.this);
                         mAdapter.setData(result.getData().getList());

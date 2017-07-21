@@ -20,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.li.education.R;
@@ -27,30 +28,29 @@ import com.li.education.base.AppData;
 import com.li.education.base.BaseActivity;
 import com.li.education.base.bean.BaseResult;
 import com.li.education.base.bean.HomeResult;
+import com.li.education.base.bean.UploadStudyResult;
 import com.li.education.base.bean.vo.ChapterListVO;
 import com.li.education.base.bean.vo.ChapterVO;
 import com.li.education.base.bean.vo.PlayUploadVO;
 import com.li.education.base.http.HttpService;
 import com.li.education.base.http.RetrofitUtil;
 import com.li.education.main.identify.IdentifyActivity;
+import com.li.education.main.identify.ScanActivity;
 import com.li.education.util.UtilData;
 import com.li.education.util.UtilDate;
 import com.li.education.util.UtilGson;
 import com.li.education.util.UtilIntent;
+import com.li.education.util.UtilPixelTransfrom;
 import com.li.education.util.UtilSPutil;
+import com.li.education.view.LfSeekBar;
 import com.pnikosis.materialishprogress.ProgressWheel;
+import com.tencent.rtmp.ITXLivePlayListener;
+import com.tencent.rtmp.TXLiveConstants;
+import com.tencent.rtmp.TXLivePlayer;
+import com.tencent.rtmp.ui.TXCloudVideoView;
 
-import java.util.HashMap;
-import java.util.Timer;
-
-import io.vov.vitamio.MediaPlayer;
-import io.vov.vitamio.utils.UtilPixelTransfrom;
-import io.vov.vitamio.widget.MediaController;
-import io.vov.vitamio.widget.VideoView;
 import rx.Subscriber;
 
-import static io.vov.vitamio.MediaPlayer.MEDIA_INFO_BUFFERING_END;
-import static io.vov.vitamio.MediaPlayer.MEDIA_INFO_BUFFERING_START;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 import static rx.schedulers.Schedulers.io;
 
@@ -58,18 +58,24 @@ import static rx.schedulers.Schedulers.io;
  * Created by liu on 2017/6/12.
  */
 
-public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoListener, MediaPlayer.OnBufferingUpdateListener, View.OnClickListener, MediaController.PlayStateCallBackListener, MediaPlayer.OnCompletionListener {
+public class PlayActivity extends BaseActivity implements View.OnClickListener, ITXLivePlayListener {
     private Uri uri;
-    private VideoView mVideoView;
+    private TXCloudVideoView mVideoView;
+    private TXLivePlayer mLivePlayer;
     private ImageView mIvPlay;
     private TextView mTvTime;
     private ProgressWheel mProgressWheel;
-    private MediaController mMediaController;
     private RelativeLayout mRlTitleLayout;
     private FrameLayout mFlVideoLayout;
     private LinearLayout mLlLayout;
     private RelativeLayout mRlPlayNext;
     private TextView mTvPlayNext;
+    private RelativeLayout rlController;
+    private ImageView ivPlay;
+    private TextView tvStart;
+    private TextView tvTotal;
+    private LfSeekBar mLfSeekBar;
+    private ImageView ivFull;
     private boolean isFull = false;
     private int currTime = -1;
     private int currPosition = -1;
@@ -86,6 +92,8 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
     private int n = 1;
     //首次启动
     private boolean isFirst = true;
+    //是否播放
+    private boolean isPlay = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -111,10 +119,17 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
         pause = UtilSPutil.getInstance(this).getInt("pause", 8);
         initView();
         startTime = UtilDate.format(System.currentTimeMillis(), "yyyy-MM-dd HH:mm:ss");
-
     }
 
-    private Handler faceHandler = new Handler(){
+    private Handler playHander = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            rlController.setVisibility(View.GONE);
+        }
+    };
+
+    private Handler faceHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
@@ -122,26 +137,26 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
         }
     };
     //X分钟弹出人脸识别
-    private Handler mHandler = new Handler(){
+    private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            if(faceTime == 0){
+            if (faceTime == 0) {
                 face();
                 mHandler.removeCallbacksAndMessages(null);
-            }else{
+            } else {
                 faceTime--;
                 Log.d("face", faceTime + "");
-                mHandler.sendEmptyMessageDelayed(0,1000);
+                mHandler.sendEmptyMessageDelayed(0, 1000);
             }
         }
     };
     //暂停x分钟自动退出学习
-    private Handler pauseHandler = new Handler(){
+    private Handler pauseHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            if(pauseTime >= 60 * pause){
+            if (pauseTime >= 60 * pause) {
                 AppData.isValid = false;
                 AppData.data.clear();
                 pauseTime = 0;
@@ -149,35 +164,32 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
                 showToast("暂停时间太长自动退出学习状态");
                 UtilSPutil.getInstance(PlayActivity.this).setLong("background", 0);
                 finish();
-            }else{
+            } else {
+                Log.d("a", pauseTime + "");
                 pauseTime++;
-                pauseHandler.sendEmptyMessageDelayed(0,1000);
+                pauseHandler.sendEmptyMessageDelayed(0, 1000);
             }
         }
     };
 
     private void initView() {
         mTvTime = (TextView) findViewById(R.id.tv_time);
-        mVideoView = (VideoView) findViewById(R.id.buffer);
+        mVideoView = (TXCloudVideoView) findViewById(R.id.buffer);
+        mVideoView.setOnClickListener(this);
+        rlController = (RelativeLayout) findViewById(R.id.rl_controller);
+        rlController.setVisibility(View.GONE);
+        rlController.setEnabled(false);
+        ivPlay = (ImageView) findViewById(R.id.iv_play_pause);
+        ivPlay.setOnClickListener(this);
+        tvStart = (TextView) findViewById(R.id.mediacontroller_time_current);
+        tvTotal = (TextView) findViewById(R.id.mediacontroller_time_total);
+        ivFull = (ImageView) findViewById(R.id.iv_full);
+        ivFull.setOnClickListener(this);
+        mLfSeekBar = (LfSeekBar) findViewById(R.id.mediacontroller_seekbar);
+        mLivePlayer = new TXLivePlayer(this);
         uri = Uri.parse(currVO.getPic());
-        mVideoView.setVideoURI(uri);
-        mMediaController = new MediaController(this);
-        mMediaController.setFullClickListener(this);
-        mMediaController.setPlayStateCallBackListener(this);
-        mVideoView.setMediaController(mMediaController);
-        mVideoView.requestFocus();
-        mVideoView.setOnInfoListener(this);
-        mVideoView.setOnBufferingUpdateListener(this);
-        mVideoView.setOnCompletionListener(this);
-        mVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mediaPlayer) {
-                // optional need Vitamio 4.0
-                mediaPlayer.setPlaybackSpeed(1.0f);
-                mProgressWheel.setVisibility(View.GONE);
-                mIvPlay.setVisibility(View.VISIBLE);
-            }
-        });
+        mLivePlayer.setPlayerView(mVideoView);
+        mLivePlayer.setPlayListener(this);
         mIvPlay = (ImageView) findViewById(R.id.iv_play);
         mIvPlay.setOnClickListener(this);
         mProgressWheel = (ProgressWheel) findViewById(R.id.progress_wheel);
@@ -193,26 +205,36 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
     protected void onResume() {
         super.onResume();
         long timeTmp = UtilSPutil.getInstance(this).getLong("background", 0);
-        if(timeTmp != 0 && System.currentTimeMillis() - timeTmp > this.pause * 60 * 1000L){
+        if (timeTmp != 0 && System.currentTimeMillis() - timeTmp > this.pause * 60 * 1000L) {
             AppData.data.clear();
             AppData.isValid = false;
             UtilSPutil.getInstance(this).setLong("background", 0);
             showToast("超过8分钟，自动退出学习");
             finish();
-        }else{
-            if(isFirst) {
+        } else {
+            if (isFirst) {
                 isFirst = false;
                 faceHandler.sendEmptyMessageDelayed(0, 1000);
+            }else{
+//                if(mLivePlayer != null){
+//                    start();
+//                }
+                if(mVideoView != null){
+                    mVideoView.onResume();
+                }
             }
+
         }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (mVideoView != null && mVideoView.isPlaying()) {
-            currTime = (int) mVideoView.getCurrentPosition();
-            mMediaController.pause();
+        if (mLivePlayer != null && mLivePlayer.isPlaying()) {
+            pause();
+        }
+        if(mVideoView != null){
+            mVideoView.onPause();
         }
         mHandler.removeCallbacksAndMessages(null);
         UtilSPutil.getInstance(this).setLong("background", System.currentTimeMillis());
@@ -221,54 +243,36 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
     @Override
     protected void onDestroy() {
         super.onDestroy();
-    }
-
-
-
-    @Override
-    public void onBufferingUpdate(MediaPlayer mp, int percent) {
-
-    }
-
-
-
-
-    @Override
-    public boolean onInfo(MediaPlayer mp, int what, int extra) {
-        switch (what) {
-            case MEDIA_INFO_BUFFERING_START:
-                if (mVideoView.isPlaying()) {
-                    mProgressWheel.setVisibility(View.VISIBLE);
-                }
-
-                break;
-
-            case MEDIA_INFO_BUFFERING_END:
-                mProgressWheel.setVisibility(View.GONE);
-                break;
+        if (mLivePlayer != null) {
+            mLivePlayer.stopPlay(true);
+            mLivePlayer = null;
         }
-        return false;
+        if (mVideoView != null){
+            mVideoView.onDestroy();
+            mVideoView = null;
+        }
     }
+
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.iv_play:
                 mIvPlay.setVisibility(View.GONE);
-                if (currTime > 0) {
-                    mVideoView.seekTo(currTime);
+                if(!isPlay) {
+                    mProgressWheel.setVisibility(View.VISIBLE);
+                    mLivePlayer.startPlay(currVO.getPic(), TXLivePlayer.PLAY_TYPE_VOD_MP4);
+                }else{
+                    start();
                 }
-                mMediaController.start();
                 break;
 
             case R.id.iv_full:
                 if (!isFull) {
                     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                    mMediaController.hide();
                     isFull = true;
                 } else {
                     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                    mMediaController.hide();
                     isFull = false;
                 }
                 break;
@@ -284,8 +288,19 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
                 currVO = data.getSysEduTypeList().get(currPosition);
                 currTime = Integer.valueOf(currVO.getVideoTime());
                 startTime = UtilDate.format(System.currentTimeMillis(), "yyyy-MM-dd HH:mm:ss");
-                uri = Uri.parse(currVO.getPic());
-                mVideoView.setVideoURI(uri);
+                mLivePlayer.startPlay(currVO.getPic(), TXLivePlayer.PLAY_TYPE_VOD_MP4);
+                break;
+
+            case R.id.buffer:
+                rlController.setVisibility(View.VISIBLE);
+                playHander.sendEmptyMessageDelayed(0, 5000);
+                break;
+            case R.id.iv_play_pause:
+                if(mLivePlayer.isPlaying()){
+                    pause();
+                }else{
+                    start();
+                }
                 break;
         }
     }
@@ -315,15 +330,15 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
     public void onBackPressed() {
         if (isFull) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-            mMediaController.hide();
             isFull = false;
         } else {
             finishAnimator();
         }
     }
 
-    @Override
-    public void start() {
+    private void start() {
+        mLivePlayer.resume();
+        ivPlay.setImageResource(R.mipmap.mediacontroller_pause);
         mIvPlay.setVisibility(View.GONE);
         mHandler.removeCallbacksAndMessages(null);
         mHandler.sendEmptyMessageDelayed(0,1000);
@@ -331,13 +346,10 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
         pauseTime = 0;
     }
 
-    @Override
-    public void pause() {
-        Log.d("play", "pause");
+    private void pause() {
+        mLivePlayer.pause();
+        ivPlay.setImageResource(R.mipmap.mediacontroller_play);
         mIvPlay.setVisibility(View.VISIBLE);
-        if (mVideoView != null) {
-            currTime = (int) mVideoView.getCurrentPosition();
-        }
         uploadData("N");
         mHandler.removeCallbacksAndMessages(null);
         pauseHandler.sendEmptyMessage(0);
@@ -360,15 +372,15 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
                 uploadVO.setCode2(currVO.getCode2());
                 uploadVO.setCrtTime(startTime);
                 uploadVO.setUpdTime(endTime);
-                uploadVO.setStudyTime(String.valueOf(mVideoView.getCurrentPosition() / 1000 - studyTime / 1000));
+                uploadVO.setStudyTime(String.valueOf(currTime - studyTime));
                 uploadVO.setFinishyn(isfinish);
-                uploadVO.setStopWatchTime(String.valueOf(mVideoView.getCurrentPosition()));
+                uploadVO.setStopWatchTime(String.valueOf(currTime));
                 AppData.data.add(uploadVO);
             } else {
                 tempVO.setUpdTime(endTime);
                 tempVO.setFinishyn(isfinish);
-                tempVO.setStudyTime(String.valueOf(mVideoView.getCurrentPosition() / 1000 - studyTime / 1000));
-                tempVO.setStopWatchTime(String.valueOf(mVideoView.getCurrentPosition()));
+                tempVO.setStudyTime(String.valueOf(currTime - studyTime));
+                tempVO.setStopWatchTime(String.valueOf(currTime));
             }
         }
         if (isValid() || AppData.isValid) {
@@ -380,7 +392,7 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
 
 
     private void upload(String eduJsonStr) {
-        RetrofitUtil.getInstance().create(HttpService.class).insEduRecord(AppData.token, eduJsonStr).subscribeOn(io()).observeOn(mainThread()).subscribe(new Subscriber<BaseResult>() {
+        RetrofitUtil.getInstance().create(HttpService.class).insEduRecord(AppData.token, eduJsonStr, AppData.sessionid).subscribeOn(io()).observeOn(mainThread()).subscribe(new Subscriber<UploadStudyResult>() {
 
             @Override
             public void onStart() {
@@ -396,7 +408,7 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
             public void onError(Throwable e) {
                 Log.d("www", "onError");
                 e.printStackTrace();
-                if(n <= 3) {
+                if (n <= 3) {
                     n++;
                     String jsonStr = UtilGson.toJson(AppData.data);
                     upload(jsonStr);
@@ -404,15 +416,18 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
             }
 
             @Override
-            public void onNext(BaseResult result) {
+            public void onNext(UploadStudyResult result) {
                 Log.d("www", "onNext");
                 if (result.isStatus()) {
                     AppData.isValid = true;
+                    if (result.getData() != null && result.getData().getSessionid() != null) {
+                        AppData.sessionid = result.getData().getSessionid();
+                    }
                     AppData.data.clear();
                     currVO.setVideoTime(String.valueOf(currTime));
                     startTime = UtilDate.format(System.currentTimeMillis(), "yyyy-MM-dd HH:mm:ss");
-                }else{
-                    if(n <= 3) {
+                } else {
+                    if (n <= 3) {
                         n++;
                         String jsonStr = UtilGson.toJson(AppData.data);
                         upload(jsonStr);
@@ -436,16 +451,16 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
             long time = Integer.valueOf(vo.getStudyTime());
             totalTime += time;
         }
-        if(AppData.cycle_code.equals("1") || AppData.cycle_code.equals("2")){
-            if(data.getLongtime() > 690 * 60){
+        if (AppData.cycle_code.equals("1") || AppData.cycle_code.equals("2")) {
+            if (data.getLongtime() > 690 * 60) {
                 return true;
-            }else if(totalTime >= 30 * 60){
+            } else if (totalTime >= 30 * 60) {
                 return true;
             }
-        }else{
-            if(data.getLongtime() > 1410 * 60){
+        } else {
+            if (data.getLongtime() > 1410 * 60) {
                 return true;
-            }else if(totalTime >= 30 * 60){
+            } else if (totalTime >= 30 * 60) {
                 return true;
             }
         }
@@ -453,13 +468,13 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
     }
 
     private void face() {
-        UtilIntent.intentResultDIYLeftToRight(this, IdentifyActivity.class, 999);
+        UtilIntent.intentResultDIYLeftToRight(this, ScanActivity.class, 999);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (resultCode){
+        switch (resultCode) {
             case 0:
                 AppData.isValid = false;
                 AppData.data.clear();
@@ -473,8 +488,8 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
     }
 
     private void initFaceTime() {
-        int faceRandom = UtilData.getRandom(1,3);
-        switch (faceRandom){
+        int faceRandom = UtilData.getRandom(1, 3);
+        switch (faceRandom) {
             case 1:
                 faceTime = 60 * 8;
                 break;
@@ -490,22 +505,73 @@ public class PlayActivity extends BaseActivity implements MediaPlayer.OnInfoList
     }
 
     @Override
-    public void onCompletion(MediaPlayer mp) {
-        Log.d("play", "onCompletion");
-        mRlPlayNext.setVisibility(View.VISIBLE);
-        if(data.getSysEduTypeList() != null) {
-            if(data.getSysEduTypeList().size() - 1 == currPosition){
+    public void onPlayEvent(int i, Bundle bundle) {
+        //视频播放开始
+        if (i == TXLiveConstants.PLAY_EVT_PLAY_BEGIN) {
+            if(!isPlay) {
+                if(currTime > 0) {
+                    mLivePlayer.seek(currTime);
+                }
+                mHandler.removeCallbacksAndMessages(null);
+                mHandler.sendEmptyMessageDelayed(0,1000);
+                isPlay = true;
+            }
+            mProgressWheel.setVisibility(View.GONE);
+            mIvPlay.setVisibility(View.GONE);
+            ivPlay.setImageResource(R.mipmap.mediacontroller_pause);
+        } else if (i == TXLiveConstants.PLAY_EVT_PLAY_PROGRESS) { //视频播放进度
+            ivPlay.setImageResource(R.mipmap.mediacontroller_pause);
+            int progress = bundle.getInt(TXLiveConstants.EVT_PLAY_PROGRESS);
+            int duration = bundle.getInt(TXLiveConstants.EVT_PLAY_DURATION);
+            currTime = duration;
+            if (mLfSeekBar != null) {
+                mLfSeekBar.setProgress(progress);
+            }
+            if (tvStart != null) {
+                tvStart.setText(String.format("%02d:%02d", progress / 60, progress % 60));
+            }
+            if (tvTotal != null) {
+                tvTotal.setText(String.format("%02d:%02d", duration / 60, duration % 60));
+            }
+            if (mLfSeekBar != null) {
+                mLfSeekBar.setMax(duration);
+            }
+            return;
+        } else if (i == TXLiveConstants.PLAY_EVT_PLAY_END) {
+            isPlay = false;
+            mRlPlayNext.setVisibility(View.VISIBLE);
+            uploadData("Y");
+            if(data.getSysEduTypeList() != null) {
+                if(data.getSysEduTypeList().size() - 1 == currPosition){
+                    mTvPlayNext.setText("全部播放完成");
+                    mTvPlayNext.setOnClickListener(null);
+                }else{
+                    mTvPlayNext.setText("播放下一个");
+                    mTvPlayNext.setOnClickListener(this);
+                }
+            }else{
                 mTvPlayNext.setText("全部播放完成");
                 mTvPlayNext.setOnClickListener(null);
-            }else{
-                mTvPlayNext.setText("播放下一个");
-                mTvPlayNext.setOnClickListener(this);
             }
-            uploadData("Y");
-        }else{
-            mTvPlayNext.setText("全部播放完成");
-            mTvPlayNext.setOnClickListener(null);
+            if (tvStart != null) {
+                tvStart.setText("00:00");
+            }
+            if (mLfSeekBar != null) {
+                mLfSeekBar.setProgress(0);
+            }
+        } else if (i == TXLiveConstants.PLAY_EVT_PLAY_LOADING) { //视频播放加载中
+//            mProgressWheel.setVisibility(View.VISIBLE);
+//            mIvPlay.setVisibility(View.GONE);
+        } else if (i == TXLiveConstants.PLAY_EVT_PLAY_BEGIN) {
+//            mProgressWheel.setVisibility(View.GONE);
+//            mIvPlay.setVisibility(View.VISIBLE);
         }
     }
+
+    @Override
+    public void onNetStatus(Bundle bundle) {
+
+    }
+
 
 }

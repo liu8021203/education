@@ -273,6 +273,12 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
             showToast("请输入身份证获取相关数据");
             return;
         }
+        CityVO cityVO = (CityVO) mSpinnerCity.getSelectedItem();
+        AreaVO areaVO = (AreaVO) mSpinnerArea.getSelectedItem();
+        if(cityVO.getTITLE2().equals("00") || areaVO.getTITLE3().equals("00")){
+            showToast("请选择区域");
+            return;
+        }
         String password = mEtPassword.getText().toString().trim();
         String repassword = mEtRePassword.getText().toString().trim();
         if(TextUtils.isEmpty(password) || TextUtils.isEmpty(repassword)){
@@ -301,8 +307,7 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
         AdapterVO typeVO = (AdapterVO) mSpinnerType.getSelectedItem();
         RequestBody bodyType = RequestBody.create(MediaType.parse("text/plain"), typeVO.getCode());
         map.put("persontype", bodyType);
-        CityVO cityVO = (CityVO) mSpinnerCity.getSelectedItem();
-        AreaVO areaVO = (AreaVO) mSpinnerArea.getSelectedItem();
+
         RequestBody bodyCity = RequestBody.create(MediaType.parse("text/plain"), "14" + cityVO.getCODE2() + areaVO.getCODE3());
         map.put("area", bodyCity);
         RequestBody bodyArea = RequestBody.create(MediaType.parse("text/plain"), "山西省" + cityVO.getTITLE2() + areaVO.getTITLE3());
@@ -322,6 +327,8 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
         map.put("cyzg_fzrq", bodyCyzg_fzrq);
         RequestBody bodyCyzg_clrq = RequestBody.create(MediaType.parse("text/plain"), vo.getCyzg_clrq());
         map.put("cyzg_clrq", bodyCyzg_clrq);
+        RequestBody bodySex = RequestBody.create(MediaType.parse("text/plain"), vo.getXb());
+        map.put("sex", bodySex);
         RetrofitUtil.getInstance().create(HttpService.class).register(map).subscribeOn(io()).observeOn(mainThread()).subscribe(new Subscriber<BaseResult>() {
 
             @Override
@@ -364,26 +371,28 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case 0:
-                File file = new File(AppData.PATH);
-                if(!file.exists()){
-                    file.mkdirs();
-                }
-                File fileImg = new File(AppData.PATH, "touxiang.jpg");
-                if(fileImg.exists()) {
+        if(resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case 0:
+                    File file = new File(AppData.PATH);
+                    if (!file.exists()) {
+                        file.mkdirs();
+                    }
+                    File fileImg = new File(AppData.PATH, "touxiang.jpg");
+                    if (fileImg.exists()) {
 //                    startPhotoZoom(Uri.fromFile(new File(AppData.PATH, "touxiang.jpg")));
-                    setPicToView(Uri.fromFile(new File(AppData.PATH, "touxiang.jpg")));
-                }
-                break;
-            case 1:
-                if(data != null) {
+                        setPicToView(Uri.fromFile(new File(AppData.PATH, "touxiang.jpg")));
+                    }
+                    break;
+                case 1:
+                    if (data != null) {
 //                    startPhotoZoom(data.getData());
-                    setPicToView(data.getData());
-                }
-                break;
-            default:
-                break;
+                        setPicToView(data.getData());
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
     }
 

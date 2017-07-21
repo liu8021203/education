@@ -19,6 +19,10 @@ public class TokenManager {
         return token;
     }
 
+    public static void signout(Context context){
+        UtilSPutil.getInstance(context).setString("token", null);
+    }
+
     public static void setUserInfo(InfoVO vo){
         mInfoVO = vo;
     }

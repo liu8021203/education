@@ -14,6 +14,8 @@ public class StudyRecordResult{
     private int count;
     private int lastpagenum;
     private int pagenum;
+    private String sumEduTime;
+    private int longtime;
 
     public List<StudyRecordVO> getList() {
         return list;
@@ -53,5 +55,21 @@ public class StudyRecordResult{
 
     public void setPagenum(int pagenum) {
         this.pagenum = pagenum;
+    }
+
+    public String getSumEduTime() {
+        return sumEduTime;
+    }
+
+    public void setSumEduTime(String sumEduTime) {
+        this.sumEduTime = sumEduTime;
+    }
+
+    public int getLongtime() {
+        return longtime;
+    }
+
+    public void setLongtime(int longtime) {
+        this.longtime = longtime;
     }
 }

@@ -31,6 +31,7 @@ import com.li.education.base.bean.vo.QuestionVO;
 import com.li.education.base.http.HttpService;
 import com.li.education.base.http.RetrofitUtil;
 import com.li.education.main.identify.IdentifyActivity;
+import com.li.education.main.identify.ScanActivity;
 import com.li.education.util.UtilIntent;
 
 import java.util.ArrayList;
@@ -462,7 +463,7 @@ public class ExamActivity extends BaseActivity implements View.OnClickListener {
                     commonVO.setReanswer("A");
                     mIvA.setImageResource(R.mipmap.a_select);
                     updateState();
-                    calculate();
+                    calculate(false);
                 } else if (commonVO.getType() == 1) {
                     int mark = (int) v.getTag();
                     if (mark == 0) {
@@ -492,7 +493,7 @@ public class ExamActivity extends BaseActivity implements View.OnClickListener {
                     commonVO.setReanswer("B");
                     mIvB.setImageResource(R.mipmap.b_select);
                     updateState();
-                    calculate();
+                    calculate(false);
                 } else if (commonVO.getType() == 1) {
                     int mark = (int) v.getTag();
                     if (mark == 0) {
@@ -522,7 +523,7 @@ public class ExamActivity extends BaseActivity implements View.OnClickListener {
                     commonVO.setReanswer("C");
                     mIvC.setImageResource(R.mipmap.c_select);
                     updateState();
-                    calculate();
+                    calculate(false);
                 } else if (commonVO.getType() == 1) {
                     int mark = (int) v.getTag();
                     if (mark == 0) {
@@ -552,7 +553,7 @@ public class ExamActivity extends BaseActivity implements View.OnClickListener {
                     commonVO.setReanswer("D");
                     mIvD.setImageResource(R.mipmap.d_select);
                     updateState();
-                    calculate();
+                    calculate(false);
                 } else if (commonVO.getType() == 1) {
                     int mark = (int) v.getTag();
                     if (mark == 0) {
@@ -582,7 +583,7 @@ public class ExamActivity extends BaseActivity implements View.OnClickListener {
                 commonVO.setReanswer("W");
                 mIvW.setImageResource(R.mipmap.w_select);
                 updateState();
-                calculate();
+                calculate(false);
             }
                 break;
 
@@ -599,7 +600,7 @@ public class ExamActivity extends BaseActivity implements View.OnClickListener {
                 commonVO.setReanswer("R");
                 mIvR.setImageResource(R.mipmap.r_select);
                 updateState();
-                calculate();
+                calculate(false);
             }
                 break;
 
@@ -679,7 +680,7 @@ public class ExamActivity extends BaseActivity implements View.OnClickListener {
                         mTvState.setTextColor(0xfff74b4f);
                     }
                 }
-                calculate();
+                calculate(false);
             }
                 break;
             case R.id.btn_again:
@@ -687,25 +688,27 @@ public class ExamActivity extends BaseActivity implements View.OnClickListener {
                 break;
 
             case R.id.btn_commit:
-                calculate();
+                calculate(true);
                 break;
         }
     }
 
 
-    private void calculate(){
+    private void calculate(boolean b){
         int num = 0;
         for (int i = 0; i < data.size(); i++){
             if(data.get(i).getResult() != 2){
                 num++;
             }
         }
-        if(num % 14 == 0){
-            UtilIntent.intentResultDIYLeftToRight(ExamActivity.this, IdentifyActivity.class,99);
+        if(num != 0 && num % 14 == 0){
+            UtilIntent.intentResultDIYLeftToRight(ExamActivity.this, ScanActivity.class,99);
             return;
         }
-        if(num < total){
-            return;
+        if(!b) {
+            if (num < total) {
+                return;
+            }
         }
         int score = 0;
         for (int i = 0; i < data.size(); i++){

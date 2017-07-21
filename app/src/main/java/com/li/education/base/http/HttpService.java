@@ -13,8 +13,10 @@ import com.li.education.base.bean.CityResult;
 import com.li.education.base.bean.HomeResult;
 import com.li.education.base.bean.InfoResult;
 import com.li.education.base.bean.QuestionResult;
+import com.li.education.base.bean.UploadStudyResult;
 import com.li.education.base.bean.vo.FaceActionResult;
 import com.li.education.base.bean.vo.IdResult;
+import com.li.education.base.bean.vo.SystemResult;
 
 import java.util.Map;
 
@@ -89,7 +91,7 @@ public interface HttpService {
 
     @FormUrlEncoded
     @POST("edu/insEduRecord")
-    Observable<BaseResult> insEduRecord(@Field("token") String token, @Field("eduJsonStr") String eduJsonStr);
+    Observable<UploadStudyResult> insEduRecord(@Field("token") String token, @Field("eduJsonStr") String eduJsonStr, @Field("sessionid") String sessionid);
 
 
     @FormUrlEncoded
@@ -115,7 +117,7 @@ public interface HttpService {
 
 
     @POST("login/getSysParam")
-    Observable<ExamRecordResult> getSysParam();
+    Observable<SystemResult> getSysParam();
 
 //    @Multipart
 //    @POST("login/url2url")

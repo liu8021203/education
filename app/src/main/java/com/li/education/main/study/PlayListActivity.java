@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.li.education.R;
 import com.li.education.base.AppData;
@@ -113,7 +114,7 @@ public class PlayListActivity extends BaseActivity implements View.OnClickListen
                         mTvTime.setText("本次总学时为" + result.getData().getSumEduTime() + "，已完成学时" + result.getData().getLongtime() + "分钟");
                     }else{
                         if(result.getMessage().equals("99")){
-                            UtilIntent.intentDIYLeftToRight(PlayListActivity.this, LoginActivity.class);
+                            showToast("请重新登录，否则学习无效");
                         }
                     }
                 }

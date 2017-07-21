@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -26,6 +27,7 @@ import com.li.education.base.common.TokenManager;
 import com.li.education.base.http.HttpService;
 import com.li.education.base.http.RetrofitUtil;
 import com.li.education.main.identify.IdentifyActivity;
+import com.li.education.main.identify.ScanActivity;
 import com.li.education.main.mine.adapter.AdapterVO;
 import com.li.education.main.study.PlayActivity;
 import com.li.education.util.UtilBitmap;
@@ -65,6 +67,7 @@ public class MineFragment extends BaseFragment implements View.OnClickListener {
     private RelativeLayout mRlExit;
 
     private MainActivity mActivity;
+    private LinearLayout mLlSignout;
 
 
     @Nullable
@@ -83,10 +86,12 @@ public class MineFragment extends BaseFragment implements View.OnClickListener {
         getInfo();
     }
 
+
+
     private void initView() {
         mHeadImg = (CircleImageView) mView.findViewById(R.id.cv_img);
         mHeadImg.setOnClickListener(this);
-
+        mLlSignout = (LinearLayout) mView.findViewById(R.id.ll_signout);
         mTvLoginRegister = (TextView) mView.findViewById(R.id.tv_login_register);
         mTvLoginRegister.setOnClickListener(this);
         mRlInfo = (RelativeLayout) mView.findViewById(R.id.rl_info);
@@ -115,13 +120,14 @@ public class MineFragment extends BaseFragment implements View.OnClickListener {
             case R.id.cv_img:
                 ChoosePicDialog dialog = new ChoosePicDialog((BaseActivity) getActivity());
                 dialog.show();
+//                UtilIntent.intentDIYLeftToRight(getActivity(), ScanActivity.class);
                 break;
 
             case R.id.rl_exam:
                 if(TextUtils.isEmpty(AppData.token)){
                     UtilIntent.intentDIYLeftToRight(getActivity(), LoginActivity.class);
                 }else {
-                    if(TokenManager.getUserInfo() != null && TokenManager.getUserInfo().getExamYN().equals("Y")) {
+                    if(!TextUtils.isEmpty(AppData.examYN) && AppData.examYN.equals("Y")) {
                         UtilIntent.intentDIYLeftToRight(getActivity(), ExamActivity.class);
                     }else{
                         mActivity.showToast("请学习完相关课程再进行考试");
@@ -183,6 +189,7 @@ public class MineFragment extends BaseFragment implements View.OnClickListener {
 
             case R.id.tv_login_register:
                 UtilIntent.intentDIYLeftToRight(getActivity(), LoginActivity.class);
+//                UtilIntent.intentDIYLeftToRight(getActivity(), ScanActivity.class);
                 break;
 
         }
@@ -213,7 +220,16 @@ public class MineFragment extends BaseFragment implements View.OnClickListener {
             public void onNext(BaseResult result) {
                 if(result.isStatus()){
                     AppData.token = "";
+                    TokenManager.signout(getActivity());
                     loginState();
+                }else{
+                    if(result.getMessage().equals("99")){
+                        AppData.token = "";
+                        TokenManager.signout(getActivity());
+                        loginState();
+                    }else{
+                        mActivity.showToast(result.getMessage());
+                    }
                 }
             }
         });
@@ -223,15 +239,21 @@ public class MineFragment extends BaseFragment implements View.OnClickListener {
     public void onResume() {
         super.onResume();
         loginState();
+        if(!TextUtils.isEmpty(AppData.url) && mHeadImg != null){
+            Bitmap bitmap = UtilBitmap.base64ToBitmap(AppData.url);
+            mHeadImg.setImageBitmap(bitmap);
+        }
     }
 
     private void loginState() {
-        if (TextUtils.isEmpty(AppData.token)) {
+        if (!TokenManager.isLogin(getActivity())) {
             mHeadImg.setVisibility(View.GONE);
             mTvLoginRegister.setVisibility(View.VISIBLE);
+            mLlSignout.setVisibility(View.GONE);
         } else {
             mHeadImg.setVisibility(View.VISIBLE);
             mTvLoginRegister.setVisibility(View.GONE);
+            mLlSignout.setVisibility(View.VISIBLE);
         }
     }
 
@@ -272,6 +294,9 @@ public class MineFragment extends BaseFragment implements View.OnClickListener {
     }
 
     private void getInfo(){
+        if(!TokenManager.isLogin(mActivity)){
+            return;
+        }
         RetrofitUtil.getInstance().create(HttpService.class).getUserInfo(AppData.token).subscribeOn(io()).observeOn(mainThread()).subscribe(new BaseSubscriber<InfoResult>((BaseActivity) getActivity()) {
 
             @Override
@@ -295,7 +320,8 @@ public class MineFragment extends BaseFragment implements View.OnClickListener {
             @Override
             public void success(InfoResult result) {
                 TokenManager.setUserInfo(result.getData());
-//                UtilGlide.loadHeaderImg(getActivity(), mHeadImg, result.getData().getFacefirsturl());
+                AppData.examYN = result.getData().getExamYN();
+                AppData.url = result.getData().getFacefirsturl();
                 Bitmap bitmap = UtilBitmap.base64ToBitmap(result.getData().getFacefirsturl());
                 mHeadImg.setImageBitmap(bitmap);
             }

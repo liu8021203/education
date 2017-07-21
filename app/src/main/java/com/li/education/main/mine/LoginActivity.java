@@ -26,6 +26,7 @@ import com.li.education.base.bean.LoginResult;
 import com.li.education.base.bean.vo.IdResult;
 import com.li.education.base.bean.vo.IdVO;
 import com.li.education.base.common.PermissionDialog;
+import com.li.education.base.common.TokenManager;
 import com.li.education.base.http.HttpService;
 import com.li.education.base.http.RetrofitUtil;
 import com.li.education.main.mine.adapter.CityAdapter;
@@ -60,6 +61,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        AppData.token = null;
+        AppData.examYN = null;
+        AppData.url = null;
+        TokenManager.signout(this);
         initView();
     }
 
@@ -148,6 +153,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                 if(result.isStatus()){
                     String token = result.getData().getToken();
                     AppData.token = token;
+                    AppData.examYN = result.getData().getExamYN();
+                    AppData.url = result.getData().getFacefirsturl();
                     UtilSPutil.getInstance(LoginActivity.this).setString("token", token);
                     finishAnimator();
                 }else{

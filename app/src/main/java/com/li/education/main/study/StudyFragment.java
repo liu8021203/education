@@ -55,7 +55,7 @@ public class StudyFragment extends BaseFragment implements View.OnClickListener{
         super.onActivityCreated(savedInstanceState);
         initView();
         mActivity = (MainActivity) getActivity();
-
+        getData(AppData.token);
     }
 
     private void initView() {
@@ -142,7 +142,7 @@ public class StudyFragment extends BaseFragment implements View.OnClickListener{
                     }
                 }else{
                     if(result.getMessage().equals("99")){
-                        UtilIntent.intentDIYLeftToRight(getActivity(), LoginActivity.class);
+                        mActivity.showToast("请重新登录，否则学习无效");
                     }else {
                         mCommonLayout.show(CommonLayout.SHOW_RELOAD);
                         mActivity.showToast(result.getMessage());
@@ -165,6 +165,5 @@ public class StudyFragment extends BaseFragment implements View.OnClickListener{
     @Override
     public void onResume() {
         super.onResume();
-        getData(AppData.token);
     }
 }

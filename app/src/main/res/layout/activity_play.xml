@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:wheel="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              xmlns:wheel="http://schemas.android.com/apk/res-auto"
               android:background="@color/transparent"
+              android:keepScreenOn="true"
               android:orientation="vertical">
 
     <RelativeLayout
@@ -39,13 +40,68 @@
         android:orientation="vertical">
 
 
-
-
-        <io.vov.vitamio.widget.VideoView
+        <com.tencent.rtmp.ui.TXCloudVideoView
             android:id="@+id/buffer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@color/black"
             android:layout_gravity="center_horizontal"/>
+
+
+        <RelativeLayout
+            android:id="@+id/rl_controller"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:background="@color/mediacontroller_bg"
+            android:visibility="gone"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/iv_play_pause"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:src="@mipmap/mediacontroller_play"/>
+
+            <TextView
+                android:id="@+id/mediacontroller_time_current"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:textColor="@color/white"
+                android:layout_marginLeft="5dp"
+                android:layout_toRightOf="@id/iv_play_pause"/>
+
+            <TextView
+                android:id="@+id/mediacontroller_time_total"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="5dp"
+                android:textColor="@color/white"
+                android:layout_toLeftOf="@+id/iv_full"/>
+
+
+            <ImageView
+                android:id="@+id/iv_full"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:src="@mipmap/full_screen"/>
+
+            <com.li.education.view.LfSeekBar
+                android:id="@+id/mediacontroller_seekbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@id/mediacontroller_time_total"
+                android:layout_toRightOf="@id/mediacontroller_time_current"
+                android:focusable="true"
+                android:max="1000"/>
+
+
+        </RelativeLayout>
 
 
         <ImageView
@@ -53,18 +109,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:visibility="gone"
-            android:src="@mipmap/play"/>
+            android:src="@mipmap/play"
+            android:visibility="visible"/>
 
 
         <com.pnikosis.materialishprogress.ProgressWheel
             android:id="@+id/progress_wheel"
             android:layout_width="60dip"
             android:layout_height="60dip"
-            android:visibility="visible"
             android:layout_gravity="center"
+            android:visibility="gone"
             wheel:matProg_barColor="#ffffff"
-            wheel:matProg_progressIndeterminate="true" />
+            wheel:matProg_progressIndeterminate="true"/>
 
 
         <RelativeLayout
@@ -79,10 +135,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:textColor="@color/white"
-                android:text="播放下一个视频"
+                android:background="@drawable/play_next_bg"
                 android:padding="10dip"
-                android:background="@drawable/play_next_bg"/>
+                android:text="播放下一个视频"
+                android:textColor="@color/white"/>
 
         </RelativeLayout>
     </FrameLayout>
@@ -100,32 +156,30 @@
             android:layout_height="wrap_content"
             android:background="@color/transparent"
             android:padding="10dip"
-            android:textColor="@color/black"
-            android:text="未处于有效学习阶段，不能中断学习"/>
+            android:text="您本次学习时间未满30分钟，不能退出学习。如果强制退出学习，本次已学时间将不计入有效学时！！！"
+            android:textColor="#ff3000"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="10dip"
             android:text="注意事项"
             android:textColor="@color/black"
-            android:layout_marginLeft="10dip"
             android:textSize="18sp"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="10dip"
-            android:textColor="@color/black"
-            android:text="1、每次登录学习时间不能低于30分钟，低于30分钟将被视为无效学时"/>
+            android:text="1、每次登录学习时间不能低于30分钟，低于30分钟将被视为无效学时"
+            android:textColor="@color/black"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="10dip"
-            android:textColor="@color/black"
-            android:text="2、每天连续学习不能超过6小时；"/>
-
-
+            android:text="2、每天连续学习不能超过6小时；"
+            android:textColor="@color/black"/>
 
 
     </LinearLayout>

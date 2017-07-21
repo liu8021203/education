@@ -13,20 +13,36 @@ import android.os.Message;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.li.education.base.AppData;
 import com.li.education.base.BaseActivity;
+import com.li.education.base.bean.HomeResult;
+import com.li.education.base.bean.vo.SystemResult;
+import com.li.education.base.bean.vo.SystemVO;
+import com.li.education.base.http.HttpService;
+import com.li.education.base.http.RetrofitUtil;
 import com.li.education.main.home.HomeFragment;
 import com.li.education.main.mine.LoginActivity;
 import com.li.education.main.mine.MineFragment;
 import com.li.education.main.study.StudyFragment;
 import com.li.education.util.UtilBitmap;
+import com.li.education.util.UtilDate;
 import com.li.education.util.UtilIntent;
+import com.li.education.util.UtilSPutil;
 
 import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import rx.Subscriber;
+
+import static rx.android.schedulers.AndroidSchedulers.mainThread;
+import static rx.schedulers.Schedulers.io;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener {
     private RelativeLayout mRlHome;
@@ -52,6 +68,61 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         initView();
         mManager = getSupportFragmentManager();
         selectTab(0);
+        getData();
+        SimpleDateFormat formatter=new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            Date date1=formatter.parse("2017-08-00");
+            Log.d("aaa", date1.getTime() + "");
+            if(System.currentTimeMillis() > date1.getTime()){
+                finish();
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void getData() {
+        RetrofitUtil.getInstance().create(HttpService.class).getSysParam().subscribeOn(io()).observeOn(mainThread()).subscribe(new Subscriber<SystemResult>() {
+
+            @Override
+            public void onStart() {
+                super.onStart();
+            }
+
+            @Override
+            public void onCompleted() {
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onNext(SystemResult result) {
+                if(result.isStatus()){
+                    if(result.getData() != null && result.getData().getList() != null){
+                        for (int i = 0; i < result.getData().getList().size(); i++){
+                            SystemVO vo = result.getData().getList().get(i);
+                            if(vo.getParamterkey().equals("upHead")){
+                                String[] arrs = vo.getParamtervalue().split("-");
+                                UtilSPutil.getInstance(MainActivity.this).setInt("head_min", Integer.valueOf(arrs[0]));
+                                UtilSPutil.getInstance(MainActivity.this).setInt("head_max", Integer.valueOf(arrs[1]));
+                            }
+                            if(vo.getParamterkey().equals("closeLeftEye")){
+                                UtilSPutil.getInstance(MainActivity.this).setInt("eye", Integer.valueOf(vo.getParamtervalue()));
+                            }
+                            if(vo.getParamterkey().equals("openMouse")){
+                                UtilSPutil.getInstance(MainActivity.this).setInt("month", Integer.valueOf(vo.getParamtervalue()));
+                            }
+                            if(vo.getParamterkey().equals("faceSimilar")){
+                                UtilSPutil.getInstance(MainActivity.this).setFloat("face", Float.valueOf(vo.getParamtervalue()));
+                            }
+                        }
+                    }
+                }
+            }
+        });
     }
 
     private void initView() {
@@ -64,7 +135,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         mTvHome = (TextView) findViewById(R.id.tv_home);
         mTvStudy = (TextView) findViewById(R.id.tv_study);
         mTvMine = (TextView) findViewById(R.id.tv_mine);
-
     }
 
 

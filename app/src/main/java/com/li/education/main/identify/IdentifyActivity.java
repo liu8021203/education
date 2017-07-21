@@ -100,6 +100,7 @@ public class IdentifyActivity extends BaseActivity {
     private int face_open_month = 5;
     private int face_up_head_min = 8;
     private int face_up_head_max = 25;
+    private float face_similarity = 0.8f;
     /**
      * The {@link android.util.Size} of camera preview.
      */
@@ -215,6 +216,7 @@ public class IdentifyActivity extends BaseActivity {
         face_open_month = UtilSPutil.getInstance(this).getInt("month",5);
         face_up_head_min = UtilSPutil.getInstance(this).getInt("head_min", 8);
         face_up_head_max = UtilSPutil.getInstance(this).getInt("head_max", 25);
+        face_similarity = UtilSPutil.getInstance(this).getFloat("face", 0.8f);
     }
 
     private Handler actionHandler = new Handler() {
@@ -364,12 +366,15 @@ public class IdentifyActivity extends BaseActivity {
             @Override
             public void onNext(FaceResult result) {
                 if(!isExit) {
-//                    setResult(1);
-//                    finish();
                     if (result.isStatus()) {
-                        isChecking = true;
-                        isCheckAction = false;
                         Face2FaceVO faceVO = (Face2FaceVO) UtilGson.fromJson(result.getData().getFace2faceResult(), Face2FaceVO.class);
+                        if(faceVO.getSimilar() > face_similarity){
+                            isChecking = true;
+                            isCheckAction = false;
+                        }else{
+                            showDialog("人脸识别不通过", 1);
+                            isChecking = false;
+                        }
                     } else {
                         showDialog("人脸识别不通过", 1);
                         isChecking = false;
@@ -611,6 +616,7 @@ public class IdentifyActivity extends BaseActivity {
                 throw new RuntimeException("Time out waiting to lock camera opening.");
             }
             manager.openCamera(mCameraId, stateCallback, childHandler);
+
         } catch (CameraAccessException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -854,50 +860,6 @@ public class IdentifyActivity extends BaseActivity {
         return (ORIENTATIONS.get(rotation) + mSensorOrientation + 270) % 360;
     }
 
-
-    /**
-     * Saves a JPEG {@link Image} into the specified {@link File}.
-     */
-    private static class ImageSaver implements Runnable {
-
-        /**
-         * The JPEG image
-         */
-        private final Image mImage;
-        /**
-         * The file we save the image into.
-         */
-        private final File mFile;
-
-        public ImageSaver(Image image, File file) {
-            mImage = image;
-            mFile = file;
-        }
-
-        @Override
-        public void run() {
-            ByteBuffer buffer = mImage.getPlanes()[0].getBuffer();
-            byte[] bytes = new byte[buffer.remaining()];
-            buffer.get(bytes);
-            FileOutputStream output = null;
-            try {
-                output = new FileOutputStream(mFile);
-                output.write(bytes);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                mImage.close();
-                if (null != output) {
-                    try {
-                        output.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-
-    }
 
 
 
